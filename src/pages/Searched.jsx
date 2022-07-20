@@ -1,61 +1,48 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components';
 import { motion } from 'framer-motion'
-import { Link, useParams } from 'react-router-dom'
-import useSWR from 'swr';
 
+function Searched() {
 
-function Categories() {
-    // const [category, setCategory] = useState([]);
-    // let params = useParams();
+  const [searchItem, setsearchItem] = useState([]);
+  let params = useParams();
+  useEffect(() => {
+    const getSearchedItem = async (name) => {
+      const res = await axios.get(`http://localhost:8000/${name}`);
+      setsearchItem(res.data.result);
 
-    // useEffect(() => {
-    //     const getCategory = async (name) => {
-    //         const res = await axios.get(`http://localhost:8000/${name}`);
-    //         setCategory(res.data.result);
-    //     }
-        
-    //     getCategory(params.type);
-
-    // }, [params.type]);
-
-
-    const fetcher = async (...args) => {
-
-        const res = await fetch(...args);
-        const data = await res.json();
-
-        return data.result;
     }
+    getSearchedItem(params.search);
 
-    let params = useParams();
-
-
-    const { data } = useSWR(`http://localhost:8000/${params.type}`, fetcher,{
-        suspense:true,
-    })
+  }, [params.search]);
 
 
-    return <Gird>
-        {data.map((category) => {
-            return (
-                <Card key={category._id}>
-                    <p>{category.title}</p>
-                    <small>{category.description.substring(0, 100) + "..."}</small>
-                    <img src={"http://localhost:8000/uploads/image/" + category.image} alt={category.title} />
-                    <Gradient />
-                </Card>
-            );
-        })}
-    </Gird>;
+  return <Gird>
+    {searchItem ? <>{searchItem.map((search) => {
+      return (
+        <Card key={search._id}>
+          <p>{search.title}</p>
+          <small>{search.description.substring(0, 100) + "..."}</small>
+          <img src={"http://localhost:8000/uploads/image/" + search.image} alt={search.title} />
+          <Gradient />
+        </Card>
+      );
+    })}</> : <h4>Data Not Found</h4>}
+  </Gird>
 }
 
 const Gird = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fit,minmax(20rem,1fr));
     grid-gap: 1rem;
-`
 
+    h4{
+      text-align: center;
+      margin-top: 12rem;
+    }
+`
 const Card = styled.div`
 min-height:15rem;
 border-radius: 2px;
@@ -115,5 +102,4 @@ const Gradient = styled.div`
 `
 
 
-
-export default Categories
+export default Searched

@@ -2,19 +2,34 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import '@splidejs/react-splide/css';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
+import useSWR from 'swr';
 
 function Veggitarian() {
-  const [bitcoin, setBitcoin] = useState([]);
+  // const [bitcoin, setBitcoin] = useState([]);
 
-  useEffect(() => {
-    getBitcoin();
-  }, []);
+  // useEffect(() => {
+  //   getBitcoin();
+  // }, []);
 
-  const getBitcoin = async () => {
-    const res = await fetch('http://localhost:8000/bitcoin')
+  // const getBitcoin = async () => {
+  //   const res = await fetch('http://localhost:8000/bitcoin')
+  //   const data = await res.json();
+  //   setBitcoin(data.result);
+  // }
+  const fetcher = async (...args) => {
+
+    const res = await fetch(...args);
     const data = await res.json();
-    setBitcoin(data.result);
+
+    return data.result;
   }
+
+
+
+  const { data } = useSWR('http://localhost:8000/bitcoin', fetcher, {
+    suspense: true,
+  })
+
 
   return (
     <div>
@@ -27,7 +42,7 @@ function Veggitarian() {
           gap: '2rem'
 
         }}>
-          {bitcoin.map((bitcoin) => {
+          {data.map((bitcoin) => {
             return (
               <SplideSlide key={bitcoin._id}>
                 <Card>
@@ -51,7 +66,7 @@ margin:4rem 2rem 2rem 2rem;
 `
 
 const Card = styled.div`
-min-height:25rem;
+min-height:15rem;
 border-radius: 2px;
 overflow:hidden;
 position:relative;

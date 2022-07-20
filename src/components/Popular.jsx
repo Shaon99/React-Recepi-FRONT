@@ -1,24 +1,40 @@
-import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import '@splidejs/react-splide/css';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
+import useSWR from 'swr';
+
 
 function Popular() {
-    const [popular, setPopular] = useState([]);
 
-    useEffect(() => {
-        getPopular();
-    }, []);
+    // useEffect(() => {
+    //     getPopular();
+    // }, []);
 
-    const getPopular = async () => {
-        const res = await fetch('http://localhost:8000')
+    // const getPopular = async () => {
+    //     const res = await fetch('http://localhost:8000')
+    //     const data = await res.json();
+    //     setPopular(data.result);
+    // }
+
+    const fetcher = async (...args) => {
+
+        const res = await fetch(...args);
         const data = await res.json();
-        setPopular(data.result);
+
+        return data.result;
     }
+
+
+
+    const { data } = useSWR('http://localhost:8000', fetcher,{
+        suspense:true,
+    })
+
 
     return (
         <div>
             <Container>
+
                 <h3>Popular Picks</h3>
                 <Splide options={{
                     perPage: 4,
@@ -27,7 +43,7 @@ function Popular() {
                     gap: '2rem'
 
                 }}>
-                    {popular.map((recipe) => {
+                    {data.map((recipe) => {
                         return (
                             <SplideSlide key={recipe._id}>
                                 <Card>
@@ -51,7 +67,7 @@ margin:4rem 2rem 2rem 2rem;
 `
 
 const Card = styled.div`
-min-height:25rem;
+min-height:15rem;
 border-radius: 2px;
 overflow:hidden;
 position:relative;
